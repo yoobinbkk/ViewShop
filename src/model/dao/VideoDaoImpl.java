@@ -23,11 +23,12 @@ public class VideoDaoImpl implements VideoDao{
 		
 	}
 	
-	public void insertVideo(VideoVO vo, int count) throws Exception{
+	public int insertVideo(VideoVO vo, int count) throws Exception{
 		
 		// 2. Connection 연결객체 얻어오기
 		Connection con = null;
 		PreparedStatement ps = null;
+		int rs = 0;
 		try {
 			con = DriverManager.getConnection(URL, USER, PASS);
 		
@@ -46,6 +47,7 @@ public class VideoDaoImpl implements VideoDao{
 		for(int i=0 ; i<count; i++) {
 			// 5. sql 전송
 			ps.executeUpdate();
+			rs++;
 		}
 		
 		} finally {
@@ -54,11 +56,13 @@ public class VideoDaoImpl implements VideoDao{
 			con.close();
 		}
 		
+		return rs;
+		
 	}
 
 
 	@Override
-	public ArrayList selectVideo(String combo, String text) throws Exception {
+	public ArrayList selectVideo(int combo, String text) throws Exception {
 		
 		ArrayList data = new ArrayList();
 		// 2. Connection 연결객체 얻어오기
@@ -68,19 +72,15 @@ public class VideoDaoImpl implements VideoDao{
 			
 			con = DriverManager.getConnection(URL, USER, PASS);
 			
+			String[] colNames = {"title", "director"};
 			String sql = null;
 			
 			if (text.equals("")) {
 				sql = "SELECT video_no, title, director, actor FROM video";
 				ps = con.prepareStatement(sql);
-			} else if (combo.equals("제목") & text.length()>0) {
-				sql = "SELECT video_no, title, director, actor FROM video where title = ?";
+			} else if (text.length()>0) {
+				sql = "SELECT video_no, title, director, actor FROM video where " + colNames[combo] + " like '%" + text + "%'";
 				ps = con.prepareStatement(sql);
-				ps.setString(1, text);
-			} else if (combo.equals("감독") & text.length()>0) {
-				sql = "SELECT video_no, title, director, actor FROM video where director = ?";
-				ps = con.prepareStatement(sql);
-				ps.setString(1, text);
 			}
 
 			// 전송
@@ -105,29 +105,31 @@ public class VideoDaoImpl implements VideoDao{
 
 
 	@Override
-	public void updateVideo(VideoVO vo, String title) throws Exception {
+	public int modifyVideo(VideoVO vo) throws Exception {
 		
 		// 2. Connection 연결객체 얻어오기
 		Connection con = null;
 		PreparedStatement ps = null;
+		int rs = 0;
 		try {
 			con = DriverManager.getConnection(URL, USER, PASS);
 			
 			// 3. sql 문장 만들기
 			String sql = "UPDATE video "
-					+ " SET genre = ?, director = ?, actor = ?, exp = ?"
-					+ " where title = ?";
+					+ " SET title = ?, genre = ?, director = ?, actor = ?, exp = ?"
+					+ " where video_no = ?";
 
 			// 4. sql 전송객체 (PreparedStatement)
 			ps = con.prepareStatement(sql);
-			ps.setString(1, vo.getGenre());
-			ps.setString(2, vo.getDirector());
-			ps.setString(3, vo.getActor());
-			ps.setString(4, vo.getExp());
-			ps.setString(5, title);
+			ps.setString(1, vo.getVideoName());
+			ps.setString(2, vo.getGenre());
+			ps.setString(3, vo.getDirector());
+			ps.setString(4, vo.getActor());
+			ps.setString(5, vo.getExp());
+			ps.setString(6, String.valueOf(vo.getVideoNo()));
 
 			// 5. sql 전송
-			ps.executeUpdate();
+			rs = ps.executeUpdate();
 
 		} finally {
 			// 6. 닫기
@@ -135,6 +137,89 @@ public class VideoDaoImpl implements VideoDao{
 			con.close();
 		}
 		
+		return rs;
+		
+	}
+	
+	/*
+	 * 메소드명	:	selectByVnum
+	 * 인자		:	비디오 번호
+	 * 리턴값		:	비디오 정보
+	 * 역할		:	비디오 번호를 넘겨받아 해당 비디오 번호의 비디오 정보를 리턴
+	 */
+	@Override
+	public VideoVO selectByVnum(int video_no) throws Exception {
+		
+		VideoVO vo = new VideoVO();
+		
+		// 2. Connection 연결객체 얻어오기
+		Connection con = null;
+		PreparedStatement ps = null;
+		try {
+
+			con = DriverManager.getConnection(URL, USER, PASS);
+		
+		String sql = "Select * from video where video_no = ?";
+		
+		// 4. 전송 객체
+		ps = con.prepareStatement(sql);
+		ps.setString(1, String.valueOf(video_no));
+
+		// 5. 전송 - executeQuery()
+		//		결과를 CustomerVO에 담기
+		ResultSet rs = ps.executeQuery();
+		if (rs.next()) {
+			vo.setVideoNo(video_no);
+			vo.setGenre(rs.getString("genre"));
+			vo.setVideoName(rs.getString("title"));
+			vo.setDirector(rs.getString("director"));
+			vo.setActor(rs.getString("actor"));
+			vo.setExp(rs.getString("exp"));
+		}
+		
+		} finally {
+			// 6. 닫기
+			ps.close();
+			con.close();
+		}
+		
+		return vo;
+	}
+
+	/*
+	 * 메소드명	:	deleteVideo
+	 * 인자		:	비디오 번호
+	 * 반환값		:	삭제된 행수
+	 * 역할		:	비디오 번호를 넘겨받아 해당 번호의 레코드를 삭제
+	 */
+	@Override
+	public int deleteVideo(int video_no) throws Exception {
+		
+		// 2. Connection 연결객체 얻어오기
+		Connection con = null;
+		PreparedStatement ps = null;
+		int rs = 0;
+		try {
+			con = DriverManager.getConnection(URL, USER, PASS);
+
+			// 3. sql 문장 만들기
+			String sql = "DELETE FROM video WHERE video_no = ?";
+
+			// 4. sql 전송객체 (PreparedStatement)
+			ps = con.prepareStatement(sql);
+			ps.setString(1, String.valueOf(video_no));
+
+			// 5. sql 전송
+			rs = ps.executeUpdate();
+		
+		} finally {
+			// 6. 닫기
+			ps.close();
+			con.close();
+		}
+		
+		return rs;
+
 	}
 	
 
