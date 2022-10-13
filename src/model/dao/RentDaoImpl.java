@@ -41,12 +41,9 @@ public class RentDaoImpl implements RentDao {
 			ps1 = con.prepareStatement(sql);
 			ps1.setString(1, video_no);
 			ResultSet rs = ps1.executeQuery();
-			String i = null;
-			while(rs.next()) {
-				i = rs.getString("return");
-			}
+			String i =  rs.getString("return");
 			
-			if(i.equals("Y")) {
+			if(!rs.next()) {
 				sql = "INSERT INTO rent(rentno, rentdate, returndate, return, custtel1, video_no) "
 						+ " VALUES(rent_seq.nextval, sysdate, ?, 'N', ?, ?)";
 

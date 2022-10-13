@@ -93,12 +93,36 @@ public class CustomerDaoImpl implements CustomerDao{
 		
 	}
 	
-	public int updateCustomer(CustomerVO vo) throws Exception{
+	public void updateCustomer(CustomerVO vo) throws Exception{
 		
-		int result = 0;
-		
-		
-		return result;
+		// 2. Connection 연결객체 얻어오기
+		Connection con = null;
+		PreparedStatement ps = null;
+		try {
+			con = DriverManager.getConnection(URL, USER, PASS);
+
+			// 3. sql 문장 만들기
+			String sql = "UPDATE video "
+					+ " SET custname = ?, custtel2 = ?, custaddr = ?, custemail = ?"
+					+ " where custtel1 = ?";
+
+			// 4. sql 전송객체 (PreparedStatement)
+			ps = con.prepareStatement(sql);
+			ps.setString(1, vo.getCustName());
+			ps.setString(2, vo.getCustTel2());
+			ps.setString(3, vo.getCustAddr());
+			ps.setString(4, vo.getCustEmail());
+			ps.setString(5, vo.getCustTel1());
+
+			// 5. sql 전송
+			ps.executeUpdate();
+
+		} finally {
+			// 6. 닫기
+			ps.close();
+			con.close();
+		}
+
 	}
 
 	@Override

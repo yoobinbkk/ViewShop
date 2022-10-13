@@ -87,14 +87,14 @@ public class CustomerView extends JPanel
 		// 3. Model 클래스 안에 insertCustomer () 메소드 호출하여 2번 VO 객체를 넘김
 		try {
 			model.insertCustomer(vo);
-			JOptionPane.showMessageDialog(null, "입력");
+			JOptionPane.showMessageDialog(null, "입력되었습니다.");
+			// 4. 화면 초기화
+			clearText();
 		} catch (Exception e) {
 			System.out.println("입력 실패 : " + e.getMessage());
 			e.printStackTrace();
 		}
 		
-		// 4. 화면 초기화
-		clearText();
 	}
 	
 	// 각각의 텍스트 필드의 내용을 지우기
@@ -155,15 +155,38 @@ public class CustomerView extends JPanel
 	
 	// 회원정보수정
 	public void updateCustomer(){
+		
+		// 1. 화면 텍스트필드의 입력값 얻어오기
+		String name = tfCustName.getText();
+		String tel1 = tfCustTel.getText();
+		String tel2 = tfCustTelAid.getText();
+		String addr = tfCustAddr.getText();
+		String email = tfCustEmail.getText();
 
-		JOptionPane.showMessageDialog(null, "수정");
+		// 2. 1값들을 Customer 클래스의 멤버로지정
+		CustomerVO vo = new CustomerVO();
+		vo.setCustName(name);
+		vo.setCustTel1(tel1);
+		vo.setCustTel2(tel2);
+		vo.setCustAddr(addr);
+		vo.setCustEmail(email);
+		
+		try {
+			model.updateCustomer(vo);
+			JOptionPane.showMessageDialog(null, "수정되었습니다.");
+			clearText();
+		} catch (Exception e) {
+			System.out.println("수정 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		
 	}
 	
 	
 	public void connectDB(){
 
 		try {
-			
 			model = new CustomerDaoImpl();
 		} catch (Exception e) {
 			System.out.println("고객관리 드라이버 로딩 실패 : " + e.getMessage());
