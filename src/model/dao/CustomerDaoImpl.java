@@ -102,7 +102,7 @@ public class CustomerDaoImpl implements CustomerDao{
 			con = DriverManager.getConnection(URL, USER, PASS);
 
 			// 3. sql 문장 만들기
-			String sql = "UPDATE video "
+			String sql = "UPDATE customer "
 					+ " SET custname = ?, custtel2 = ?, custaddr = ?, custemail = ?"
 					+ " where custtel1 = ?";
 
@@ -134,9 +134,8 @@ public class CustomerDaoImpl implements CustomerDao{
 		try {
 			con = DriverManager.getConnection(URL, USER, PASS);
 		
-		
 		// 3. sql 문장
-		String sql = "SELECT * FROM CUSTOMER WHERE custName = ?";
+		String sql = "SELECT * FROM CUSTOMER WHERE custName = ? ";
 		
 		// 4. 전송 객체
 		ps = con.prepareStatement(sql);

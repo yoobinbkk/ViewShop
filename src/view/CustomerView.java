@@ -179,7 +179,6 @@ public class CustomerView extends JPanel
 			System.out.println("수정 실패 : " + e.getMessage());
 			e.printStackTrace();
 		}
-
 		
 	}
 	
